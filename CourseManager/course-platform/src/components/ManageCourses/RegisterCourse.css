@@ -1,0 +1,32 @@
+.register-course {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .register-course form {
+    display: flex;
+    flex-direction: column;
+    width: 300px; /* Adjust based on your design */
+  }
+  
+  .register-course input, .register-course textarea {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  .register-course button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .register-course button:hover {
+    background-color: #45a049;
+  }

@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./CourseManagerAPI
+      dockerfile: Dockerfile
+    ports:
+      - "7105:7105"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  frontend:
+    build:
+      context: ./course-platform
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production

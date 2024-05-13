@@ -1,0 +1,77 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '87261b0a-be3a-45c9-88b8-7e4903b63865'
+  containerRegistry: 'skillflow-alitodashev-rg'
+  backendDockerfilePath: '$(Build.SourcesDirectory)/CourseManager/CourseManagerAPI/Dockerfile'
+  frontendDockerfilePath: '$(Build.SourcesDirectory)/CourseManager/course-platform/Dockerfile'
+  dockerComposefilePath: '$(Build.SourcesDirectory)/CourseManager/docker-compose.yml'
+  tag: '$(Build.BuildId)'
+
+  # Agent VM image name
+pool:
+  vmImage: ubuntu-latest
+
+  
+stages:
+- stage: Buildandpush
+  displayName: Build and push stage
+  jobs:
+  - job: Buildandpush
+    displayName: Build
+    steps:
+    - task: Docker@2
+      displayName: Build and push Backend image
+      inputs:
+        command: buildAndPush
+        repository: $(containerRegistry)/backend
+        dockerfile: $(backendDockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: 'latest-$(Build.BuildId)'
+
+    - task: Docker@2
+      displayName: Build and push Frontend image
+      inputs:
+        command: buildAndPush
+        repository: $(containerRegistry)/frontend
+        dockerfile: $(frontendDockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: 'latest-$(Build.BuildId)'
+
+- stage: 'Deploy'
+  displayName: 'Deploy to web app'
+  dependsOn: [Buildandpush]
+  condition: not(or(failed(), canceled()))
+  jobs:
+  - job: 'Deploy'
+    displayName: 'Deploy'
+    timeoutInMinutes: 240
+    steps:
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'InitialConnection'
+        appType: 'webAppContainer'
+        WebAppName: 'courseManagerAppService'
+        DockerNamespace: 'coursemanagercontainerregistry.azurecr.io'
+        DockerRepository: 'skillflow-alitodashev-rg/frontend'
+        DockerImageTag: 'latest-$(Build.BuildId)'
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'InitialConnection'
+        appType: 'webAppContainer'
+        WebAppName: 'courseManagerAppServiceBackend'
+        DockerNamespace: 'coursemanagercontainerregistry.azurecr.io'
+        DockerRepository: 'skillflow-alitodashev-rg/backend'
+        DockerImageTag: 'latest-$(Build.BuildId)'
+    

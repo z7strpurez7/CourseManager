@@ -1,0 +1,20 @@
+.course-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust the min and max widths as needed */
+    gap: 20px;
+    padding: 20px;
+    justify-content: center; /* This will center the grid items */
+    margin: auto; /* Centers the grid container */
+    max-width: 1200px; /* Adjust this value to control the maximum width of the grid */
+  }
+  
+  .course-item {
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .course-item img {
+    max-width: 100%;
+    height: auto;
+  }
